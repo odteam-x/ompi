@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#02224A" />
+  <meta name="description" content="Acceso a documentos oficiales · OMPI — PLERD. Búsqueda, navegación y descarga de tratados, manuales y publicaciones del comité." />
+  <title>Acceso a Documentos oficiales · OMPI — PLERD</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="isotipo.png" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a class="brand" href="#/" aria-label="OMPI · PLERD — Inicio">
+        <!--
+          ISOTIPO OMPI — usa el archivo `isotipo.png` ubicado en la
+          carpeta raíz del proyecto. Reemplázalo libremente.
+        -->
+        <span class="brand-iso">
+          <img src="isotipo.png" alt="OMPI" />
+        </span>
+
+        <!-- Isotipo MR (Modelos Regionales) — PNG blanco sobre fondo transparente. -->
+        <span class="brand-divider" aria-hidden="true"></span>
+        <span class="brand-secondary-mark has-img" aria-label="Modelos Regionales">
+          <img src="mr.png" alt="MR · Modelos Regionales" />
+        </span>
+
+        <span class="brand-text">
+          <span class="brand-primary">Comité OMPI</span>
+          <span class="brand-subtitle">Modelos Regionales de las Naciones Unidas</span>
+        </span>
+      </a>
+
+      <form class="search" role="search" onsubmit="return false;">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Buscar documentos…" autocomplete="off" aria-label="Buscar documentos" />
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+      </form>
+    </div>
+  </header>
+
+  <main id="main" class="container" role="main">
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Ruta"></nav>
+    <section id="view" class="view" aria-live="polite"></section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <strong>OMPI</strong>
+        <span class="dot">•</span>
+        <span>Organización Mundial de la Propiedad Intelectual</span>
+      </div>
+      <div class="footer-meta">
+        <span>Modelos Regionales de las Naciones Unidas</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

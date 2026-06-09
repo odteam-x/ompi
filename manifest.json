@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-06-08T21:42:00Z",
+  "root": ".",
+  "items": [
+    {
+      "type": "file",
+      "name": "Manual de Procedimiento OMPI.pdf",
+      "path": "Manual de Procedimiento OMPI.pdf",
+      "ext": "pdf",
+      "size": 26496997,
+      "modified": "2026-06-08T21:40:35Z",
+      "description": "Manual oficial del comité OMPI en PLERD: estructura del debate, reglas de procedimiento, formato de discursos, papeles de trabajo y resoluciones. Lectura obligatoria para todo delegado y mesa directiva.",
+      "tags": ["procedimiento", "obligatorio", "mesa directiva"]
+    },
+    {
+      "type": "file",
+      "name": "OMPI IA Generativa - Traducción ES.pdf",
+      "path": "OMPI IA Generativa - Traducción ES.pdf",
+      "ext": "pdf",
+      "size": 209938,
+      "modified": "2026-06-08T21:41:33Z",
+      "description": "Informe de la OMPI sobre inteligencia artificial generativa y propiedad intelectual: implicaciones jurídicas, autoría, datos de entrenamiento y los nuevos retos del derecho de autor. Tema central para los debates más actuales del comité.",
+      "tags": ["IA", "tópico A", "actualidad"]
+    },
+    {
+      "type": "file",
+      "name": "Acuerdo sobre los Aspectos de los Derechos de Propiedad Intelectual relacionados con el Comercio.pdf",
+      "path": "Acuerdo sobre los Aspectos de los Derechos de Propiedad Intelectual relacionados con el Comercio.pdf",
+      "ext": "pdf",
+      "size": 160192,
+      "modified": "2026-06-08T21:40:42Z",
+      "description": "Acuerdo ADPIC / TRIPS administrado por la OMC (1994). Establece los estándares mínimos internacionales de protección de la propiedad intelectual vinculados al comercio. Marco jurídico esencial para debates sobre PI y comercio global.",
+      "tags": ["tratado", "OMC", "ADPIC"]
+    },
+    {
+      "type": "file",
+      "name": "CONVENIO DE BERNA PARA LA PROTECCIÓN DE LAS OBRAS LITERARIAS Y ARTISTICAS.pdf",
+      "path": "CONVENIO DE BERNA PARA LA PROTECCIÓN DE LAS OBRAS LITERARIAS Y ARTISTICAS.pdf",
+      "ext": "pdf",
+      "size": 152775,
+      "modified": "2026-06-08T21:41:20Z",
+      "description": "Convenio de Berna (1886, revisado en París en 1971). Tratado fundacional del derecho de autor internacional: principio de trato nacional y protección automática sin formalidades. Base de casi toda la doctrina moderna.",
+      "tags": ["tratado", "fundacional", "derecho de autor"]
+    },
+    {
+      "type": "file",
+      "name": "Convención Universal sobre Derecho de Autor revisada el 24 de julio de 1971.pdf",
+      "path": "Convención Universal sobre Derecho de Autor revisada el 24 de julio de 1971.pdf",
+      "ext": "pdf",
+      "size": 305034,
+      "modified": "2026-06-08T21:41:03Z",
+      "description": "Convención Universal sobre Derecho de Autor (UNESCO, revisión de París, 1971). Alternativa histórica al Convenio de Berna pensada para Estados con tradiciones jurídicas distintas. Útil para entender la pluralidad de regímenes de protección.",
+      "tags": ["tratado", "UNESCO"]
+    },
+    {
+      "type": "file",
+      "name": "Convención interamericana sobre el Derecho de Autor en Obras Literarias, Científicas y Artísticas de 22 de junio de 1946.pdf",
+      "path": "Convención interamericana sobre el Derecho de Autor en Obras Literarias, Científicas y Artísticas de 22 de junio de 1946.pdf",
+      "ext": "pdf",
+      "size": 221101,
+      "modified": "2026-06-08T21:40:52Z",
+      "description": "Convención Interamericana de Washington (1946) sobre derecho de autor en obras literarias, científicas y artísticas. Referencia regional clave para el bloque latinoamericano dentro del comité.",
+      "tags": ["tratado", "regional", "Américas"]
+    },
+    {
+      "type": "file",
+      "name": "Convención de Buenos Aires Sobre la Propiedad Literaria y Artística.pdf",
+      "path": "Convención de Buenos Aires Sobre la Propiedad Literaria y Artística.pdf",
+      "ext": "pdf",
+      "size": 181695,
+      "modified": "2026-06-08T21:41:10Z",
+      "description": "Convención de Buenos Aires (1910). Tratado panamericano sobre reciprocidad de derechos de autor entre países americanos; origen histórico de la fórmula \"todos los derechos reservados\".",
+      "tags": ["tratado", "regional", "histórico"]
+    },
+    {
+      "type": "file",
+      "name": "wipo_pub_909_2016.pdf",
+      "path": "wipo_pub_909_2016.pdf",
+      "ext": "pdf",
+      "size": 296320,
+      "modified": "2026-06-08T21:41:27Z",
+      "description": "Publicación OMPI 909 (2016): \"Principios básicos del derecho de autor y los derechos conexos\". Guía introductoria editada por la propia OMPI; recomendada para delegados que recién se acercan al tema.",
+      "tags": ["guía", "OMPI", "introductorio"]
+    }
+  ]
+}
