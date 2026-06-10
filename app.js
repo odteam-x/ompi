@@ -1,11 +1,10 @@
 /* =========================================================
-   OMPI · PLERD — Acceso a Documentos oficiales
+   OMPI · Modelos Regionales ONU — Acceso a Documentos
    ---------------------------------------------------------
-   Separación intencional:
-     • indexer  → cargar/normalizar el índice (manifest.json)
-     • model    → consultas sobre el índice (carpeta, búsqueda, archivo)
-     • view     → render HTML
-     • router   → mapear hash → vista
+     • indexer  → carga/normaliza manifest.json (docs + workshops)
+     • model    → consultas (carpeta, búsqueda, archivo)
+     • view     → render HTML (hero badge, talleres, docs, detalle)
+     • router   → hash → vista
    ========================================================= */
 
 (() => {
@@ -13,27 +12,26 @@
 
   const MANIFEST_URL = 'manifest.json';
 
-  /* Tipos de archivo: etiqueta, clase de color e icono base. */
   const TYPE_MAP = {
-    pdf:  { label: 'PDF',       cls: 'ic-pdf',     badge: 'pdf', preview: 'pdf'   },
-    png:  { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    jpg:  { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    jpeg: { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    gif:  { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    svg:  { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    webp: { label: 'Imagen',    cls: 'ic-img',     badge: 'img', preview: 'image' },
-    txt:  { label: 'Texto',     cls: 'ic-txt',     badge: 'txt', preview: 'text'  },
-    md:   { label: 'Markdown',  cls: 'ic-txt',     badge: 'txt', preview: 'text'  },
-    json: { label: 'JSON',      cls: 'ic-txt',     badge: 'txt', preview: 'text'  },
-    csv:  { label: 'CSV',       cls: 'ic-txt',     badge: 'txt', preview: 'text'  },
-    doc:  { label: 'Word',      cls: 'ic-doc',     badge: 'doc', preview: null    },
-    docx: { label: 'Word',      cls: 'ic-doc',     badge: 'doc', preview: null    },
-    xls:  { label: 'Excel',     cls: 'ic-doc',     badge: 'doc', preview: null    },
-    xlsx: { label: 'Excel',     cls: 'ic-doc',     badge: 'doc', preview: null    },
-    ppt:  { label: 'PowerPoint',cls: 'ic-doc',     badge: 'doc', preview: null    },
-    pptx: { label: 'PowerPoint',cls: 'ic-doc',     badge: 'doc', preview: null    },
-    zip:  { label: 'Archivo',   cls: 'ic-zip',     badge: 'doc', preview: null    },
-    rar:  { label: 'Archivo',   cls: 'ic-zip',     badge: 'doc', preview: null    },
+    pdf:  { label: 'PDF',       cls: 'ic-pdf',  badge: 'pdf', preview: 'pdf'   },
+    png:  { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    jpg:  { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    jpeg: { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    gif:  { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    svg:  { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    webp: { label: 'Imagen',    cls: 'ic-img',  badge: 'img', preview: 'image' },
+    txt:  { label: 'Texto',     cls: 'ic-txt',  badge: 'txt', preview: 'text'  },
+    md:   { label: 'Markdown',  cls: 'ic-txt',  badge: 'txt', preview: 'text'  },
+    json: { label: 'JSON',      cls: 'ic-txt',  badge: 'txt', preview: 'text'  },
+    csv:  { label: 'CSV',       cls: 'ic-txt',  badge: 'txt', preview: 'text'  },
+    doc:  { label: 'Word',      cls: 'ic-doc',  badge: 'doc', preview: null    },
+    docx: { label: 'Word',      cls: 'ic-doc',  badge: 'doc', preview: null    },
+    xls:  { label: 'Excel',     cls: 'ic-doc',  badge: 'doc', preview: null    },
+    xlsx: { label: 'Excel',     cls: 'ic-doc',  badge: 'doc', preview: null    },
+    ppt:  { label: 'PowerPoint',cls: 'ic-doc',  badge: 'doc', preview: null    },
+    pptx: { label: 'PowerPoint',cls: 'ic-doc',  badge: 'doc', preview: null    },
+    zip:  { label: 'Archivo',   cls: 'ic-zip',  badge: 'doc', preview: null    },
+    rar:  { label: 'Archivo',   cls: 'ic-zip',  badge: 'doc', preview: null    },
   };
 
   const TYPE_GROUPS = [
@@ -45,7 +43,6 @@
   ];
 
   /* ---------------------- Utilidades ---------------------- */
-
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -62,18 +59,12 @@
 
   const formatDate = (iso) => {
     if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch { return iso; }
+    try { return new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    catch { return iso; }
   };
 
-  const normalize = (s) => (s || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/\p{Diacritic}/gu, '');
-
+  const normalize = (s) => (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
   const typeInfo = (ext) => TYPE_MAP[(ext || '').toLowerCase()] || { label: (ext || '').toUpperCase() || 'FILE', cls: 'ic-default', badge: 'doc', preview: null };
-
   const encodePath = (p) => p.split('/').map(encodeURIComponent).join('/');
 
   const highlight = (text, query) => {
@@ -84,56 +75,20 @@
     const idx = nT.indexOf(nQ);
     if (idx < 0) return escapeHtml(text);
     const end = idx + nQ.length;
-    return escapeHtml(text.slice(0, idx)) +
-      `<mark class="hl">${escapeHtml(text.slice(idx, end))}</mark>` +
-      escapeHtml(text.slice(end));
+    return escapeHtml(text.slice(0, idx))
+      + `<mark class="hl">${escapeHtml(text.slice(idx, end))}</mark>`
+      + escapeHtml(text.slice(end));
   };
 
   /* ---------------------- Indexer ---------------------- */
-
   async function loadIndex() {
     const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error(`No se pudo cargar manifest.json (${res.status})`);
     const data = await res.json();
-    const root = data.root || '..';
+    const root = data.root || '.';
+    const workshops = Array.isArray(data.workshops) ? data.workshops : [];
     const flat = [];
     const tree = { name: '', path: '', type: 'dir', children: [] };
-
-    const walk = (items) => {
-      for (const it of items) {
-        if (it.type === 'dir' && Array.isArray(it.children)) {
-          // Walk children into the tree, preserving structure.
-          walkDir(it, tree, '');
-        } else {
-          const segments = it.path.split('/');
-          const fileName = it.name || segments[segments.length - 1];
-          let cursor = tree;
-          let accum = '';
-          for (let i = 0; i < segments.length - 1; i++) {
-            const seg = segments[i];
-            accum = accum ? `${accum}/${seg}` : seg;
-            let child = cursor.children.find((c) => c.type === 'dir' && c.name === seg);
-            if (!child) {
-              child = { type: 'dir', name: seg, path: accum, children: [] };
-              cursor.children.push(child);
-            }
-            cursor = child;
-          }
-          const entry = {
-            type: 'file',
-            name: fileName,
-            path: it.path,
-            ext: (it.ext || fileName.split('.').pop() || '').toLowerCase(),
-            size: it.size,
-            modified: it.modified,
-            description: it.description || '',
-            tags: Array.isArray(it.tags) ? it.tags : [],
-          };
-          cursor.children.push(entry);
-          flat.push(entry);
-        }
-      }
-    };
 
     const walkDir = (dirItem, parent, parentPath) => {
       const dir = {
@@ -143,34 +98,53 @@
         children: [],
       };
       parent.children.push(dir);
-      for (const child of dirItem.children) {
-        if (child.type === 'dir' && Array.isArray(child.children)) {
-          walkDir(child, dir, dir.path);
-        } else {
-          const fileName = child.name || child.path.split('/').pop();
-          const entry = {
-            type: 'file',
-            name: fileName,
-            path: child.path,
-            ext: (child.ext || fileName.split('.').pop() || '').toLowerCase(),
-            size: child.size,
-            modified: child.modified,
-            description: child.description || '',
-            tags: Array.isArray(child.tags) ? child.tags : [],
-          };
-          dir.children.push(entry);
-          flat.push(entry);
-        }
+      for (const child of dirItem.children || []) {
+        if (child.type === 'dir' && Array.isArray(child.children)) walkDir(child, dir, dir.path);
+        else walkFile(child, dir);
       }
     };
 
-    walk(data.items || []);
+    const walkFile = (it, parent) => {
+      const segments = it.path.split('/');
+      const fileName = it.name || segments[segments.length - 1];
+      let cursor = parent;
+      // Si vive en subcarpetas y entra desde la raíz, construye el árbol intermedio
+      if (parent === tree) {
+        let accum = '';
+        for (let i = 0; i < segments.length - 1; i++) {
+          const seg = segments[i];
+          accum = accum ? `${accum}/${seg}` : seg;
+          let child = cursor.children.find((c) => c.type === 'dir' && c.name === seg);
+          if (!child) {
+            child = { type: 'dir', name: seg, path: accum, children: [] };
+            cursor.children.push(child);
+          }
+          cursor = child;
+        }
+      }
+      const entry = {
+        type: 'file',
+        name: fileName,
+        path: it.path,
+        ext: (it.ext || fileName.split('.').pop() || '').toLowerCase(),
+        size: it.size,
+        modified: it.modified,
+        description: it.description || '',
+        tags: Array.isArray(it.tags) ? it.tags : [],
+      };
+      cursor.children.push(entry);
+      flat.push(entry);
+    };
 
-    return { root, tree, flat, generatedAt: data.generatedAt };
+    for (const it of data.items || []) {
+      if (it.type === 'dir' && Array.isArray(it.children)) walkDir(it, tree, '');
+      else walkFile(it, tree);
+    }
+
+    return { root, tree, flat, workshops, generatedAt: data.generatedAt };
   }
 
   /* ---------------------- Modelo ---------------------- */
-
   function getDir(state, path) {
     if (!path) return state.tree;
     const parts = path.split('/').filter(Boolean);
@@ -193,7 +167,6 @@
     return state.flat.filter((f) => {
       if (!grp.match(f.ext)) return false;
       if (!nQ) return true;
-      // Busca en nombre, descripción y tags
       const haystack = `${f.name} ${f.description} ${(f.tags || []).join(' ')}`;
       return normalize(haystack).includes(nQ);
     });
@@ -203,17 +176,16 @@
     const arr = source || state.flat;
     const counts = {};
     for (const g of TYPE_GROUPS) {
-      counts[g.id] = arr.filter((f) => f.type !== 'file' ? false : g.match(f.ext)).length;
+      counts[g.id] = arr.filter((f) => f.type === 'file' && g.match(f.ext)).length;
     }
     counts.all = arr.length;
     return counts;
   }
 
   /* ---------------------- Iconos ---------------------- */
-
   const ICONS = {
     folder: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>`,
-    pdf: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/><text x="12" y="17" text-anchor="middle" font-family="Barlow,Inter,Arial" font-size="5.2" font-weight="800" stroke="none" fill="currentColor">PDF</text></svg>`,
+    pdf: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/><text x="12" y="17" text-anchor="middle" font-family="'Barlow Condensed',Inter,Arial" font-size="5.2" font-weight="800" stroke="none" fill="currentColor">PDF</text></svg>`,
     img: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 17-5-6-4 5-2-2-4 5"/></svg>`,
     doc: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>`,
     txt: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/></svg>`,
@@ -221,6 +193,7 @@
     file: `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5"/></svg>`,
     download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 12 6 6 6-6"/><path d="M4 21h16"/></svg>`,
     external: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="m10 14 11-11"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>`,
+    arrow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>`,
     eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
     grid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
     list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/></svg>`,
@@ -241,24 +214,15 @@
   };
 
   /* ---------------------- Router ---------------------- */
-
   function parseHash() {
     const raw = location.hash.replace(/^#/, '') || '/';
     if (raw === '/' || raw === '') return { name: 'home' };
     const [pathPart, qsPart] = raw.split('?');
     const segments = pathPart.split('/').filter(Boolean);
     const params = new URLSearchParams(qsPart || '');
-    if (segments[0] === 'dir') {
-      const path = segments.slice(1).map(decodeURIComponent).join('/');
-      return { name: 'dir', path };
-    }
-    if (segments[0] === 'file') {
-      const path = segments.slice(1).map(decodeURIComponent).join('/');
-      return { name: 'file', path };
-    }
-    if (segments[0] === 'search') {
-      return { name: 'search', query: params.get('q') || '', group: params.get('t') || 'all' };
-    }
+    if (segments[0] === 'dir')    return { name: 'dir', path: segments.slice(1).map(decodeURIComponent).join('/') };
+    if (segments[0] === 'file')   return { name: 'file', path: segments.slice(1).map(decodeURIComponent).join('/') };
+    if (segments[0] === 'search') return { name: 'search', query: params.get('q') || '', group: params.get('t') || 'all' };
     return { name: 'home' };
   }
 
@@ -268,7 +232,6 @@
   const urlForFile  = (p) => `${STATE.index.root}/${encodePath(p)}`;
 
   /* ---------------------- Estado ---------------------- */
-
   const STATE = {
     index: null,
     layout: localStorage.getItem('ompi.layout') || 'grid',
@@ -276,7 +239,6 @@
   };
 
   /* ---------------------- Render auxiliares ---------------------- */
-
   function renderBreadcrumb(parts) {
     const el = $('#breadcrumb');
     if (!parts || parts.length === 0) { el.innerHTML = ''; return; }
@@ -287,17 +249,23 @@
     }).join('');
   }
 
-  function renderHeroBig(eyebrow, title, accent, subtitle, total) {
+  /* Hero badge — sección de intro a pantalla completa:
+     fondo blanco con textura papel, banda diagonal coral detrás
+     y badge navy oscuro centrado. Termina con un indicador "scroll". */
+  function renderHeroBadge() {
+    const chevron = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
     return `
-      <section class="hero" aria-labelledby="hero-title">
-        <span class="eyebrow"><span class="dot"></span>${escapeHtml(eyebrow)}</span>
-        <h1 id="hero-title">${escapeHtml(title)} <span class="accent">${escapeHtml(accent)}</span></h1>
-        <p>${escapeHtml(subtitle)}</p>
-        <div class="hero-stats" aria-hidden="true">
-          <div class="hero-stat"><strong>${total}</strong><span>Documentos</span></div>
-          <div class="hero-stat"><strong>OMPI</strong><span>Comité</span></div>
-          <div class="hero-stat"><strong>ONU</strong><span>Modelo Regional</span></div>
+      <section class="hero-badge" aria-labelledby="hero-title">
+        <div class="hero-card">
+          <span class="hero-eyebrow">Acceso a Documentos oficiales</span>
+          <h1 id="hero-title" class="hero-title">OMPI</h1>
+          <p class="hero-subtitle">Modelos Regionales de las Naciones Unidas</p>
+          <p class="hero-tagline">Tratados, manuales y talleres del Comité OMPI. Todo lo que un delegado necesita para preparar y vivir el debate sobre propiedad intelectual.</p>
         </div>
+        <a class="hero-scroll" href="#explorar" aria-label="Explorar contenido del sitio">
+          <span>Explorar</span>
+          ${chevron}
+        </a>
       </section>
     `;
   }
@@ -309,6 +277,15 @@
         <h1 id="hero-title">${escapeHtml(title)}</h1>
         <p>${escapeHtml(subtitle)}</p>
       </section>
+    `;
+  }
+
+  function renderSectionHead(title, meta) {
+    return `
+      <div class="section-head">
+        <h2>${escapeHtml(title)}</h2>
+        ${meta ? `<span class="section-meta">${escapeHtml(meta)}</span>` : ''}
+      </div>
     `;
   }
 
@@ -334,8 +311,38 @@
     `;
   }
 
-  /* ---------------------- Cards y rows ---------------------- */
+  /* ---------------------- Workshops ---------------------- */
+  function renderWorkshopCard(ws) {
+    const host = (() => {
+      try { return new URL(ws.url).hostname.replace(/^www\./, ''); }
+      catch { return 'enlace externo'; }
+    })();
+    return `
+      <a class="workshop" href="${escapeHtml(ws.url)}" target="_blank" rel="noopener noreferrer">
+        <div class="workshop-top">
+          <span class="workshop-tag">Taller</span>
+          <span class="workshop-arrow" aria-hidden="true">${ICONS.arrow}</span>
+        </div>
+        <h3 class="workshop-title">${escapeHtml(ws.title)}</h3>
+        <p class="workshop-desc">${escapeHtml(ws.description || '')}</p>
+        <span class="workshop-foot">${ICONS.external}<span>${escapeHtml(host)}</span></span>
+      </a>
+    `;
+  }
 
+  function renderWorkshopsSection(workshops) {
+    if (!workshops || workshops.length === 0) return '';
+    return `
+      <section aria-labelledby="workshops-head">
+        ${renderSectionHead('Talleres', `${workshops.length} sesión${workshops.length === 1 ? '' : 'es'} de formación`)}
+        <div class="workshops">
+          ${workshops.map(renderWorkshopCard).join('')}
+        </div>
+      </section>
+    `;
+  }
+
+  /* ---------------------- Cards / Rows ---------------------- */
   function renderCard(entry, query) {
     const icon = iconForEntry(entry);
     if (entry.type === 'dir') {
@@ -441,9 +448,7 @@
         </div>
       `;
     }
-    if (layout === 'list') {
-      return `<div class="list">${entries.map((e) => renderRow(e, query)).join('')}</div>`;
-    }
+    if (layout === 'list') return `<div class="list">${entries.map((e) => renderRow(e, query)).join('')}</div>`;
     return `<div class="grid">${entries.map((e) => renderCard(e, query)).join('')}</div>`;
   }
 
@@ -455,31 +460,37 @@
   }
 
   /* ---------------------- Vistas ---------------------- */
-
   function viewHome() {
     const state = STATE.index;
     const entries = sortEntries(state.tree.children);
     const counts  = countByGroup(state, state.flat);
 
-    renderBreadcrumb([{ label: 'Inicio', current: true }]);
+    // Sin breadcrumb en home: el hero ya hace la veces de "estás en el inicio".
+    renderBreadcrumb([]);
 
     $('#view').innerHTML = `
-      ${renderHeroBig(
-        'Modelos Regionales ONU · Comité OMPI',
-        'Acceso a Documentos',
-        'oficiales — OMPI',
-        'Tratados, manuales y publicaciones institucionales sobre propiedad intelectual, organizados para los delegados de los Modelos Regionales de las Naciones Unidas. Busca, navega y descarga sin fricción.',
-        state.flat.length
-      )}
-      <div class="section-head">
-        <h2>Biblioteca del comité</h2>
-        <span class="section-meta">${state.flat.length} documento${state.flat.length === 1 ? '' : 's'} disponibles</span>
+      ${renderHeroBadge()}
+      <div id="explorar">
+        ${renderWorkshopsSection(state.workshops)}
+        ${renderSectionHead('Documentos oficiales', `${state.flat.length} archivo${state.flat.length === 1 ? '' : 's'} disponibles`)}
+        ${renderToolbar({ counts, activeGroup: 'all', total: entries.length })}
+        <div id="entries">${renderEntries(entries)}</div>
       </div>
-      ${renderToolbar({ counts, activeGroup: 'all', total: entries.length })}
-      <div id="entries">${renderEntries(entries)}</div>
     `;
 
     wireToolbar({ scope: 'home' });
+    wireHeroScroll();
+  }
+
+  /* Scroll suave desde el indicador "Explorar" del hero al resto del sitio. */
+  function wireHeroScroll() {
+    const btn = $('.hero-scroll');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.getElementById('explorar');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   function viewDir(path) {
@@ -514,6 +525,58 @@
     wireToolbar({ scope: 'dir', entries });
   }
 
+  /* ¿Estamos en una pantalla pequeña? La mayoría de navegadores
+     móviles NO renderizan PDF dentro de iframes — mejor mostrar
+     una tarjeta clara con botones de descarga y abrir externo. */
+  const MOBILE_MQ = window.matchMedia('(max-width: 720px)');
+  const isMobile = () => MOBILE_MQ.matches;
+
+  /* Verifica si el archivo es accesible vía HTTP. Detecta dos casos:
+       1) Status != 2xx → no existe / sin permiso
+       2) Status OK pero content-type HTML → el servidor devolvió una
+          página de error (p. ej. "Cannot GET …" de un static server). */
+  async function checkFileAvailable(url) {
+    try {
+      const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+      if (!r.ok) return false;
+      const ct = (r.headers.get('content-type') || '').toLowerCase();
+      if (ct.startsWith('text/html')) return false;
+      return true;
+    } catch { return false; }
+  }
+
+  /* Skeleton de carga mientras decidimos qué mostrar en .preview-wrap */
+  function renderPreviewLoading() {
+    return `
+      <div class="preview-loading" role="status" aria-live="polite">
+        <span class="preview-loading-spinner" aria-hidden="true"></span>
+        <span class="preview-loading-label">Cargando previsualización…</span>
+      </div>
+    `;
+  }
+
+  /* Tarjeta de fallback: cuando no se puede mostrar la vista previa
+     (móvil, archivo inaccesible, formato no compatible) ofrecemos
+     acciones claras en lugar de un iframe roto o un mensaje seco. */
+  function renderPreviewFallback({ title, message, file, fileUrl, kind = 'info' }) {
+    const fileIcon = `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M38 6H16a4 4 0 0 0-4 4v44a4 4 0 0 0 4 4h32a4 4 0 0 0 4-4V20L38 6Z"/><path d="M38 6v14h14"/><text x="32" y="44" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="13" font-weight="800" stroke="none" fill="currentColor">PDF</text></svg>`;
+    return `
+      <div class="preview-fallback" data-kind="${kind}">
+        <span class="preview-fallback-icon">${fileIcon}</span>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(message)}</p>
+        <div class="preview-fallback-actions">
+          <a class="btn btn-primary" href="${fileUrl}" download="${escapeHtml(file.name)}">
+            ${ICONS.download}<span>Descargar</span>
+          </a>
+          <a class="btn btn-secondary" href="${fileUrl}" target="_blank" rel="noopener">
+            ${ICONS.external}<span>Abrir en pestaña</span>
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
   function viewFile(path) {
     const file = getFile(STATE.index, path);
     if (!file) return viewNotFound(`Archivo no encontrado: ${path}`);
@@ -531,22 +594,37 @@
     const info = typeInfo(file.ext);
     const fileUrl = urlForFile(file.path);
     const previewKind = info.preview;
+    const mobile = isMobile();
 
+    // Decide qué meter en .preview-wrap ANTES de renderizar.
     let previewHtml = '';
+    let needsAsyncCheck = false; // true → verificamos PDF en background
+
     if (previewKind === 'pdf') {
-      previewHtml = `<iframe src="${fileUrl}#view=FitH" title="Previsualización: ${escapeHtml(file.name)}" loading="lazy"></iframe>`;
+      if (mobile) {
+        // Móvil: nunca iframe — los lectores nativos no funcionan inline
+        previewHtml = renderPreviewFallback({
+          title: 'Vista previa optimizada para escritorio',
+          message: 'En dispositivos móviles los PDFs no se previsualizan dentro del navegador. Descárgalo o ábrelo en una pestaña nueva para leerlo cómodamente.',
+          file, fileUrl, kind: 'mobile',
+        });
+      } else {
+        // Desktop: spinner mientras confirmamos que el archivo existe,
+        // así evitamos el "Cannot GET …" del iframe roto.
+        previewHtml = renderPreviewLoading();
+        needsAsyncCheck = true;
+      }
     } else if (previewKind === 'image') {
       previewHtml = `<img src="${fileUrl}" alt="${escapeHtml(file.name)}" loading="lazy"/>`;
     } else if (previewKind === 'text') {
       previewHtml = `<pre class="preview-text" data-src="${fileUrl}">Cargando…</pre>`;
     } else {
-      previewHtml = `
-        <div class="no-preview">
-          ${ICONS.eye}
-          <h3 style="margin:0;color:var(--navy-900);font-family:'Barlow',sans-serif;font-weight:700;font-size:20px;">Previsualización no disponible</h3>
-          <p style="margin:0;max-width:380px;">Este tipo de archivo (${escapeHtml(info.label)}) no se puede previsualizar en el navegador. Descárgalo para abrirlo en tu equipo.</p>
-        </div>
-      `;
+      // Formato sin preview en navegador: tarjeta con acciones
+      previewHtml = renderPreviewFallback({
+        title: 'Vista previa no disponible',
+        message: `Este tipo de archivo (${info.label}) no se puede previsualizar dentro del navegador. Descárgalo o ábrelo en una pestaña para verlo.`,
+        file, fileUrl, kind: 'unsupported',
+      });
     }
 
     const desc = file.description || 'Sin descripción disponible para este documento.';
@@ -586,12 +664,31 @@
       </div>
     `;
 
+    // Si rendereamos texto, lo cargamos vía fetch.
     const pre = $('.preview-text');
     if (pre) {
       fetch(pre.dataset.src)
         .then((r) => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
         .then((t) => { pre.textContent = t; })
         .catch((err) => { pre.textContent = `No se pudo cargar el archivo: ${err.message}`; });
+    }
+
+    // Desktop PDF: confirmamos primero que el archivo es accesible.
+    // Si OK → iframe. Si no → tarjeta de fallback con acciones.
+    if (needsAsyncCheck) {
+      checkFileAvailable(fileUrl).then((ok) => {
+        const wrap = $('.preview-wrap');
+        if (!wrap) return;
+        if (ok) {
+          wrap.innerHTML = `<iframe src="${fileUrl}#view=FitH" title="Previsualización: ${escapeHtml(file.name)}" loading="lazy"></iframe>`;
+        } else {
+          wrap.innerHTML = renderPreviewFallback({
+            title: 'No pudimos cargar la vista previa',
+            message: 'El archivo no está accesible desde este servidor. Si lo necesitas, descárgalo o ábrelo en una pestaña nueva.',
+            file, fileUrl, kind: 'unavailable',
+          });
+        }
+      });
     }
   }
 
@@ -625,7 +722,7 @@
         ${ICONS.warn}
         <h3>Recurso no disponible</h3>
         <p>${escapeHtml(msg)}</p>
-        <p><a class="btn" href="#/">Volver al inicio</a></p>
+        <p><a class="btn btn-secondary" href="#/">Volver al inicio</a></p>
       </div>
     `;
   }
@@ -639,7 +736,7 @@
         <p>${escapeHtml(err.message || String(err))}</p>
         <p style="color:var(--muted);font-size:14px;">
           Sirve el sitio con un servidor estático (por ejemplo:
-          <code>python -m http.server</code> dentro de la carpeta <code>site/</code>)
+          <code>python -m http.server</code> dentro de la carpeta del proyecto)
           y verifica que <code>manifest.json</code> exista.
         </p>
       </div>
@@ -647,7 +744,6 @@
   }
 
   /* ---------------------- Cableado ---------------------- */
-
   function wireToolbar({ scope, entries, query }) {
     $$('.chip').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -664,8 +760,8 @@
           }));
           $$('.chip').forEach((c) => c.setAttribute('aria-pressed', c.dataset.group === g));
           $('#entries').innerHTML = renderEntries(filtered, { layout: STATE.layout });
-          const meta = $('.toolbar .section-meta');
-          if (meta) meta.textContent = `${filtered.length} elemento${filtered.length === 1 ? '' : 's'}`;
+          const metaEls = $$('.toolbar .section-meta');
+          if (metaEls.length) metaEls[metaEls.length - 1].textContent = `${filtered.length} elemento${filtered.length === 1 ? '' : 's'}`;
         }
       });
     });
@@ -711,16 +807,10 @@
   }
 
   /* ---------------------- Boot ---------------------- */
-
   function dispatch() {
     const route = parseHash();
-    // Scroll suave hacia el tope al cambiar de vista. Si el usuario ya
-    // está cerca del inicio, evitamos animar para no interrumpirlo.
-    if (window.scrollY > 80) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
+    if (window.scrollY > 80) window.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'auto' });
     try {
       if (route.name === 'home') return viewHome();
       if (route.name === 'dir')  return viewDir(route.path);

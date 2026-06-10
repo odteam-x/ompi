@@ -68,10 +68,11 @@ async function scan(dir) {
   return items;
 }
 
-// Conservar descripciones y tags del manifest previo (datos curados).
+// Conservar descripciones, tags y workshops del manifest previo (datos curados).
 async function loadPrevMeta(path) {
   const desc = new Map();
   const tags = new Map();
+  let workshops = [];
   try {
     await access(path);
     const prev = JSON.parse(await readFile(path, 'utf8'));
@@ -85,8 +86,9 @@ async function loadPrevMeta(path) {
       }
     };
     walk(prev.items || []);
+    if (Array.isArray(prev.workshops)) workshops = prev.workshops;
   } catch { /* no hay manifest previo: ok */ }
-  return { desc, tags };
+  return { desc, tags, workshops };
 }
 
 function hydrate(entries, desc, tags) {
@@ -99,13 +101,14 @@ function hydrate(entries, desc, tags) {
   }
 }
 
-const { desc, tags } = await loadPrevMeta(OUT);
+const { desc, tags, workshops } = await loadPrevMeta(OUT);
 const items = await scan(SOURCE);
 hydrate(items, desc, tags);
 
 const manifest = {
   generatedAt: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
   root: '.',
+  workshops,
   items,
 };
 

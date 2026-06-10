@@ -1,6 +1,23 @@
 {
   "generatedAt": "2026-06-08T21:42:00Z",
   "root": ".",
+  "workshops": [
+    {
+      "title": "Introducción a la OMPI",
+      "url": "https://canva.link/8p8c4cznqubhz41",
+      "description": "Primer acercamiento al comité: misión de la OMPI, su rol dentro del sistema ONU y los grandes temas de la propiedad intelectual."
+    },
+    {
+      "title": "Procedimiento Parlamentario",
+      "url": "https://www.canva.com/design/DAHLno4MDHo/-BjkXgen9mX5Nqyf8p6NQg/edit",
+      "description": "Reglas de debate, formato de discursos, mociones y manejo de la sesión paso a paso para delegados nuevos."
+    },
+    {
+      "title": "Documentos Oficiales OMPI",
+      "url": "https://canva.link/8jdomxqeodznwxm",
+      "description": "Cómo redactar y trabajar con papeles de trabajo, proyectos de resolución y enmiendas durante el comité."
+    }
+  ],
   "items": [
     {
       "type": "file",

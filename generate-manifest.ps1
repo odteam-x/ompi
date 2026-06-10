@@ -71,10 +71,11 @@ function Scan([string]$path) {
   return $items
 }
 
-# Si ya existe un manifest, conservamos las descripciones y tags
-# previos (no se sobrescriben datos curados al regenerar).
+# Si ya existe un manifest, conservamos las descripciones, tags y
+# talleres previos (no se sobrescriben datos curados al regenerar).
 $prevDescByPath = @{}
 $prevTagsByPath = @{}
+$prevWorkshops  = @()
 if (Test-Path -LiteralPath $OutFile) {
   try {
     $prev = Get-Content -LiteralPath $OutFile -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -88,6 +89,7 @@ if (Test-Path -LiteralPath $OutFile) {
       }
     }
     Read-Prev $prev.items
+    if ($prev.workshops) { $prevWorkshops = $prev.workshops }
   } catch {
     Write-Host "Aviso: no se pudo leer el manifest previo; se ignora."
   }
@@ -110,6 +112,7 @@ Hydrate $items
 $manifest = [ordered]@{
   generatedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
   root        = '.'
+  workshops   = ,@($prevWorkshops)
   items       = ,@($items)
 }
 
